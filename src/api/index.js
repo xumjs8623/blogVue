@@ -1,31 +1,25 @@
 import axios from 'axios'
 import router from '../router'
 import url from '../../config/url'
+import {Message} from 'element-ui'
 // 自动将响应头中的token 放到请求头中去请求
 axios.defaults.baseURL = url
 axios.defaults.withCredentials = true
 // axios 响应拦截器
-axios.interceptors.response.use(
-  res => {
-    // 状态码为-1 跳转到登录页
-    if (res.data.code === -1) {
-      router.push('/login')
-      // 添加data格式，方便判断
-    }
-    // 状态码为-1 跳转到登录页
-    if (res.data.code === -2) {
-      router.push('/login')
-      // 添加data格式，方便判断
-    }
-    return res
-  },
-  error => {
-    if (error) {
-      error.res.data['code'] = '-1'
-      error.res.data['data'] = []
-    }
-    return Promise.reject(error.res.data) // 返回接口返回的错误信息
-  })
+axios.interceptors.response.use(function (res) {
+  // 对响应数据做点什么
+  console.log(res)
+  if (res.data.code === -1) {
+    router.push('/login')
+  }
+  if (res.data.code === 0) {
+    Message.error(res.data.msg)
+  }
+  return res
+}, function (error) {
+  // 对响应错误做点什么
+  return Promise.reject(error)
+})
 /* -------------------------用户管理模块----------------------------- */
 export const login = params => { return axios.post('/login', params).then(res => res.data).catch((error) => { console.log(error) }) }
 export const logout = params => { return axios.get('/logout', { params: params }).then(res => res.data).catch((error) => { console.log(error) }) }
