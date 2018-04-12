@@ -24,26 +24,26 @@ export default {
   data: function () {
     return {
       ruleForm: {
-        userName: '',
-        password: ''
+        userName: 'admin',
+        password: '123456'
       }
     }
   },
   methods: {
     submitForm (formName) {
       let loadingInstance = Loading.service({ fullscreen: true })
-      const _this = this
-      _this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
           login(this.ruleForm)
             .then((data) => {
               loadingInstance.close()
               if (data.code === 1) {
-                sessionStorage.setItem('userInfo', data.data)
-                _this.setLogin({roleId: data.data.roleId, name: data.data.name})
-                _this.$router.push('/admin/user')
+                // sessionStorage.setItem('userInfo', data.data)
+                // this.setLogin({roleId: data.data.roleId, name: data.data.name})
+                this.$router.push({path: '/admin'})
+                console.log(123)
               } else {
-                _this.$message.error(data.msg)
+                this.$message.error(data.msg)
               }
             })
         } else {

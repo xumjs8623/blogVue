@@ -7,13 +7,21 @@
       <menus-left></menus-left>
     </div>
     <div id="admin-content">
-        <router-view></router-view>
+      <el-row>
+        <el-col :span="24">
+          <tabs></tabs>
+        </el-col>
+        <el-col :span="24">
+          <router-view></router-view>
+        </el-col>
+      </el-row>
     </div>
   </div>
 </template>
 <script>
 import menusLeft from './AdminLeft'
 import adminHead from './AdminHead'
+import tabs from './Tabs'
 export default {
   data () {
     return {
@@ -22,7 +30,8 @@ export default {
   },
   components: {
     menusLeft,
-    adminHead
+    adminHead,
+    tabs
   }
 }
 </script>

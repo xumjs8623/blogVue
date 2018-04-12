@@ -1,15 +1,18 @@
 <template>
   <div class="admin-left">
     <!--<el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>-->
-    <el-menu default-active="4-1" class="el-menu-vertical-demo" :default-openeds="openMenus">
-      <el-submenu  v-for="item in menus" :key="item.indexes" :index="item.indexes">
+    <el-menu
+      :default-active="activeIndex"
+      class="el-menu-vertical-demo">
+      <el-submenu  v-for="item in menus" :key="item.index" :index="item.index">
         <template slot="title"><i :class="['iconfont',item.icon]"></i>{{item.name}}</template>
-        <router-link v-for="sub in item.children" :to="sub.url" :key="sub.indexes"><el-menu-item :index="sub.indexes">{{sub.name}}</el-menu-item></router-link>
+        <el-menu-item v-for="subItem in item.children" :key="subItem.index" :index="subItem.index" @click="setTabs(subItem)">{{subItem.name}}</el-menu-item>
       </el-submenu>
     </el-menu>
   </div>
 </template>
 <script>
+import {mapActions, mapGetters} from 'vuex'
 export default {
   name: 'admin-left',
   data () {
@@ -17,61 +20,66 @@ export default {
       // 左侧菜单栏数据
       menus: [{
         name: '用户管理',
-        indexes: '1',
+        index: '1',
         icon: '123',
         children: [{
           name: '用户列表',
-          indexes: '1-1',
+          index: '1-1',
           url: '/admin/user'
         }]
       }, {
         name: '分类管理',
-        indexes: '2',
+        index: '2',
         icon: '123',
         children: [{
           name: '分类列表',
-          indexes: '2-1',
+          index: '2-1',
           url: '/admin/category'
         }]
       }, {
         name: '标签管理',
-        indexes: '3',
+        index: '3',
         icon: '123',
         children: [{
           name: '标签列表',
-          indexes: '3-1',
+          index: '3-1',
           url: '/admin/tag'
         }]
       }, {
         name: '文章管理',
-        indexes: '4',
+        index: '4',
         icon: '123',
         children: [{
-          name: '文章礼拜',
-          indexes: '4-1',
+          name: '文章列表',
+          index: '4-1',
           url: '/admin/article'
         }]
       }, {
         name: '系统设置',
-        indexes: '5',
+        index: '5',
         icon: '123',
         children: [{
           name: '参数配置',
-          indexes: '5-1',
+          index: '5-1',
           url: '/admin/systemParams'
         }]
-      }],
-      // 默认打开菜单的key
-      openMenus: ['1-1']
+      }]
     }
+  },
+  computed: {
+    ...mapGetters({
+      activeIndex: 'getActiveIndex'
+    })
   },
   created: function () {
   },
   methods: {
-    handleNodeClick (data) {
-      if (data.hasOwnProperty('url')) {
-        this.$router.push(data.url)
-      }
+    ...mapActions([
+      'addTabs'
+    ]),
+    setTabs (tabsItem) {
+      this.addTabs(tabsItem)
+      this.$router.push({path: tabsItem.url})
     }
   }
 }
