@@ -288,7 +288,7 @@ export default {
     submitForm (formName) {
       var _this = this
       this.$refs[formName].validate((valid) => {
-        if (valid && this.ruleForm === '') {
+        if (valid && this.ruleForm.id === '') {
           api.userInsert(this.ruleForm)
             .then(data => {
               if (data.code === 1) {

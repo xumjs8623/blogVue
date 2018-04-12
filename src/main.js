@@ -10,7 +10,7 @@ import '../static/iconfont.css'
 import VueLazyload from 'vue-lazyload'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
-Vue.prototype.$ELEMENT = { size: 'mini' }
+Vue.prototype.$ELEMENT = { size: 'small' }
 Vue.use(VueLazyload, {
   error: '../static/error.png',
   loading: '../static/loading.png',

@@ -3,77 +3,122 @@
     <el-col :span="24">
       <bread-crumb></bread-crumb>
     </el-col>
-    <el-col :span="12">
-      <el-tree
-        :data="tableData"
-        :props="defaultProps"
-        :default-expand-all=true
-        @node-click="nodeClick"
-        node-key="id"
-        class="classify-tree">
-      </el-tree>
+    <el-col :span="24">
     </el-col>
-    <el-col :span="12">
-       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
-         <el-input type="hidden" v-model="ruleForm.id"></el-input>
-         <el-input type="hidden" v-model="ruleForm.pid"></el-input>
-          <el-form-item label="上级名称" prop="pid">
-            <el-select v-model="ruleForm.pid" placeholder="请选择上级分类">
-              <el-option v-for="item in catMenus" :key="item.id" :label="item.name" :value="item.id"></el-option>
+    <el-col :span="24" class="category-table">
+      <el-table
+        :data="tableData"
+        border
+        style="width: 100%">
+        <el-table-column
+          type="selection"
+          width="55">
+        </el-table-column>
+        <el-table-column
+          label="分类名称"
+          prop="name"
+          min-width="800"
+          class="category-name"
+          :formatter="formatter">
+          <template slot-scope="scope">
+            <template v-if="scope.row.level === 1 || scope.row.level === 0">
+              {{scope.row.name}}
+            </template>
+            <template v-else-if="scope.row.level === 2">
+              └┈┈ {{scope.row.name}}
+            </template>
+            <template v-else>
+              <span :style="{display: 'inline-block', width: (scope.row.level-2) * 40 + 'px'}"></span>
+              <span>└┈┈ {{scope.row.name}}</span>
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column label="排序" prop="index" width="50"></el-table-column>
+        <el-table-column
+          label="操作"
+          width="200"
+          fixed="right">
+          <template slot-scope="scope">
+            <template v-if="scope.row.name === '全部分类'">
+              <el-button type="text" @click="rowAdd(scope.row)">添加子分类</el-button>
+            </template>
+            <template v-else>
+              <el-button type="text" @click="rowEdit(scope.row)">编辑</el-button>
+              <el-button type="text" @click="rowAdd(scope.row)">添加子分类</el-button>
+              <el-button type="text" @click="rowDelete(scope.row)">删除</el-button>
+            </template>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-col>
+    <el-col :span="24">
+      <el-dialog
+      title="分类信息"
+      :visible.sync="dialogTag"
+      >
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
+          <el-input type="hidden" v-model="ruleForm.id"></el-input>
+          <el-form-item label="上级分类">
+            <el-select v-model="ruleForm.pid" placeholder="">
+              <el-option v-for="(item, index) in tableData" :key="index" :value="item.id" :label="item.name">
+                <template v-if="item.level === 1 || item.level === 0">
+                  {{item.name}}
+                </template>
+                <template v-else-if="item.level === 2">
+                  └┈┈ {{item.name}}
+                </template>
+                <template v-else>
+                  <span :style="{display: 'inline-block', width: (item.level-2) * 40 + 'px'}"></span>
+                  <span>└┈┈ {{item.name}}</span>
+                </template>
+              </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="名称" prop="name">
             <el-input type="text" v-model="ruleForm.name" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="级别">
-            <el-input type="text" v-model="ruleForm.level" auto-complete="off" :disabled="true"></el-input>
+          <el-form-item label="排序" prop="index">
+            <el-input type="text" v-model="ruleForm.index" auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item v-show="!handleButton">
-            <el-button type="primary" @click="submitForm('ruleForm')">提交修改</el-button>
-            <el-button type="success" @click="classifySub">新增子分类</el-button>
-            <el-button type="success" @click="classifyTop">新增顶级分类</el-button>
-            <el-button type="danger" @click="classifyDelete(false)">删除</el-button>
-          </el-form-item>
-          <el-form-item v-show="handleButton">
-            <el-button type="success" @click="submitForm('ruleForm')">新增</el-button>
-            <el-button type="permary" @click="handleButton=false">取消</el-button>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+            <el-button @click="dialogTag = false">取消</el-button>
           </el-form-item>
         </el-form>
+      </el-dialog>
     </el-col>
   </el-row>
 </template>
 <script>
 import breadCrumb from './BreadCrumb'
 import * as api from '../../api'
-import * as handle from '../common/handle'
 export default {
   components: {
     breadCrumb
   },
   data () {
     return {
-      tableData: [],
-      defaultProps: {
-        children: 'children',
-        label: 'name'
+      keyword: '', // 搜索关键词
+      firstTableData: {
+        id: 0,
+        name: '全部分类',
+        index: '0',
+        level: 0
       },
-      catMenus: [], // 分类下拉
-      // classifyData: [],
-      handleButton: false,
+      tableData: [],
+      dialogTag: false, // 弹窗标签
       ruleForm: {
         id: '',
-        name: '',
-        level: '',
         pid: '',
-        address: '',
-        pName: '顶级分类'
+        name: '',
+        index: ''
       },
       rules: {
         name: [{
           required: true, message: '请输入名称', trigger: 'blur'
         }],
-        pid: [{
-          type: 'number', required: true, message: '请选择上级分类', trigger: 'blur'
+        index: [{
+          required: true, message: '请输入排序', trigger: 'blur'
         }]
       }
     }
@@ -84,141 +129,114 @@ export default {
   methods: {
     // 获取组织树
     getTable () {
-      var _this = this
       api.categoryList()
         .then(data => {
-          if (data.code === 1) {
-            _this.tableData = data.data.treeData
-            _this.catMenus = data.data.menusData
-            // _this.classifyData = data.data.classifyData
-          } else if (data.code === 0) {
-            this.$message({
-              message: data.msg,
-              duration: 1000,
-              type: 'error'
-            })
+          if (data.code) {
+            this.tableData = data.data.listData
+            this.tableData.unshift(this.firstTableData)
           }
         })
     },
-    // 组织新增修改
-    submitForm (formName) {
-      var _this = this
-      // 如果不存在level，那么说明不是新增顶级分类里面的并且没有点击左侧树形结构
-      if (!_this.ruleForm.level) {
-        _this.$message.error('请先选择组织架构，再修改')
+    // 新增
+    rowAdd (row) {
+      this.dialogTag = true
+      for (let x in this.ruleForm) {
+        this.ruleForm[x] = ''
       }
-      // 验证表单
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          if (_this.ruleForm.pid === 0) {
-            _this.ruleForm.pid = 0
-            _this.ruleForm.level = '1'
-          }
+      this.ruleForm.pid = row.id
+    },
+    submitForm (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid && this.ruleForm.id === '') {
+          // 新增
           api.categoryInsert(this.ruleForm)
             .then(data => {
-              if (data.code === 1) {
+              if (data.code) {
+                this.$message.success(data.msg)
+                this.$message({
+                  message: data.msg,
+                  duration: 1500,
+                  type: 'success'
+                })
+                this.dialogTag = false
+                this.getTable()
+              }
+            })
+        } else if (valid && this.ruleForm.id !== '') {
+          // 修改
+          api.categoryUpdate(this.ruleForm)
+            .then(data => {
+              if (data.code) {
                 this.$message({
                   message: data.msg,
                   type: 'success',
-                  duration: 1000,
+                  duration: 1500,
                   onClose: () => {
-                    // 清空数据
-                    _this.ruleForm = handle.formClean(_this.ruleForm)
-                    // 重新获取数据
-                    _this.getTable()
-                    _this.handleButton = false
+                    this.dialogTag = false
+                    this.getTable()
                   }
-                })
-              } else if (data.code === 0) {
-                this.$message({
-                  message: data.msg,
-                  duration: 1000,
-                  type: 'error'
                 })
               }
             })
-        } else {
-          console.log('error submit!!')
-          return false
         }
       })
     },
-    // 组织架构删除
-    classifyDelete (tag) {
-      // tag 为true时，删除组织架构并且删除该组织架构下的所有用户，为false，发起普通删除请求
-      tag = tag || false
-      var _this = this
-      api.categoryDelt({id: this.ruleForm.id, tag: tag})
-        .then(data => {
-          if (data.code === 1) {
-            this.$message({
-              message: data.msg,
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                // 清空数据
-                _this.ruleForm = handle.formClean(_this.ruleForm)
-                // 重新获取数据
-                _this.getTable()
-              }
-            })
-          } else if (data.code === 0) {
-            // 当该组织架构下有用户是，弹窗询问用户是否继续删除
-            _this.$confirm(data.msg, '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            }).then(() => {
-              _this.classifyDelete(true)
-            }).catch(() => {
+    // 删除
+    rowDelete (row) {
+      this.$confirm('此操作将删除分类(' + row.name + ')以及下属子分类, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        api.categoryDelt({id: Number(row.id)})
+          .then(data => {
+            if (data.code) {
               this.$message({
-                type: 'info',
-                message: '已取消删除'
+                message: data.msg,
+                type: 'success',
+                duration: 1500,
+                onClose: () => {
+                  this.getTable()
+                }
               })
-            })
-          }
+            }
+          })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
+      })
     },
-    // 新增顶级分类
-    classifyTop () {
-      this.ruleForm.id = ''
-      this.ruleForm.name = ''
-      this.ruleForm.level = '1'
-      this.ruleForm.pid = 0
-      this.ruleForm.address = ''
-      this.ruleForm.pName = '顶级分类'
-      this.handleButton = true
-    },
-    // 新增子分类
-    classifySub () {
-      if (this.ruleForm.id) {
-        this.ruleForm.pid = this.ruleForm.id
-        this.ruleForm.id = ''
-        // this.ruleForm.pName = this.ruleForm.name
-        this.ruleForm.name = ''
-        this.ruleForm.level++
-        this.ruleForm.address = ''
-        this.handleButton = true
-      } else {
-        this.$message.error('请先在左侧选择该子分类的父级，然后再点击新增子分类')
+    // 修改
+    rowEdit (row) {
+      for (let x in this.ruleForm) {
+        this.ruleForm[x] = row[x]
       }
+      this.dialogTag = true
     },
-    // 树结构点击
-    nodeClick (data, node) {
-      for (var x in this.ruleForm) {
-        if (data.hasOwnProperty(x)) {
-          if (x === 'pName' && data[x] === null) {
-            data[x] = '顶级分类'
-          }
-          this.ruleForm[x] = data[x]
+    // 分类名称格式化
+    formatter (row, column) {
+      if (row.level === 1 || row.level === 0) {
+        return row.name
+      } else if (row.level === 2) {
+        return '└┈┈' + row.name
+      } else {
+        let str = '|'
+        for (let i = 0; i < row.level; i++) {
+          str += '&nbsp'
         }
+        return str + '└┈┈' + row.name
       }
     }
   }
 }
 </script>
 <style lang="">
-  .classify-tree{
-    margin-top: 2em
+  .category-table{
+    margin-top: 2em;
+  }
+  .category-name{
+    text-align: left;
   }
 </style>
