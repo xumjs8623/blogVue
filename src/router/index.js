@@ -4,7 +4,8 @@ import Login from '@/components/admin/Login'
 import Admin from '@/components/common/Admin'
 import User from '@/components/admin/User'
 import IndexPage from '@/components/admin/Index'
-import Article from '@/components/admin/Article'
+import Article from '@/components/admin/article/Article'
+import ArticleContent from '@/components/admin/article/ArticleContent'
 import Tag from '@/components/admin/Tag'
 import Category from '@/components/admin/Category'
 import SystemParams from '@/components/admin/SystemParams'
@@ -38,6 +39,10 @@ export default new Router({
         {
           path: 'article',
           component: Article
+        },
+        {
+          path: 'articleContent',
+          component: ArticleContent
         },
         {
           path: 'systemParams',

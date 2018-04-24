@@ -89,10 +89,10 @@
   </el-row>
 </template>
 <script>
-import breadCrumb from './BreadCrumb'
-import pagination from '../common/Pagination'
-import * as api from '../../api'
-import * as handle from '../common/handle'
+import breadCrumb from '../BreadCrumb'
+import pagination from '../../common/Pagination'
+import * as api from '../../../api'
+import * as handle from '../../common/handle'
 export default {
   components: {
     breadCrumb,
