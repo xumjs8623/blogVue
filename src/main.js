@@ -5,11 +5,16 @@ import App from './App'
 import router from './router'
 import store from './store/index'
 import ElementUI from 'element-ui'
+import '../static/reset.css'
 import 'element-ui/lib/theme-chalk/index.css'
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
 import '../static/iconfont.css'
+import '@/assets/common.scss'
 import VueLazyload from 'vue-lazyload'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.use(mavonEditor)
 Vue.prototype.$ELEMENT = { size: 'small' }
 Vue.use(VueLazyload, {
   error: '../static/error.png',

@@ -9,9 +9,15 @@ import ArticleContent from '@/components/admin/article/ArticleContent'
 import Tag from '@/components/admin/Tag'
 import Category from '@/components/admin/Category'
 import SystemParams from '@/components/admin/SystemParams'
+import Home from '@/components/home/index/Index'
 Vue.use(Router)
 export default new Router({
   routes: [
+    {
+      // 首页
+      path: '/',
+      component: Home
+    },
     {
       // 登录页
       path: '/login',

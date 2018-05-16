@@ -7,7 +7,7 @@
       <el-row class="nav-search">
         <el-col :span="24">
           <div class="user-input">
-            <el-input v-model="keyword" placeholder="输入名称进行搜索" class="keyword-input" @keyup.enter.native="getTable(1,keyword)"></el-input>
+            <el-input v-model="searchKeyword.keyword" placeholder="输入名称进行搜索" class="keyword-input" @keyup.enter.native="getTable(1,keyword)"></el-input>
           </div>
           <el-button type="primary" @click="getTable(1,keyword)"><i class="iconfont iconfont-handle icon-sousuo_sousuo"></i>搜索</el-button>
         </el-col>
@@ -15,97 +15,53 @@
     </el-col>
     <el-col :span="24" class="nav-handle">
       <el-button type="danger" @click="allDelete"><i class="iconfont iconfont-handle icon-shanchu"></i>批量删除</el-button>
-      <el-button type="success" @click="dialogTag = true"><i class="iconfont iconfont-handle icon-xinzeng1"></i>新增</el-button>
+      <el-button type="success" @click="$router.push('/admin/articleContent')"><i class="iconfont iconfont-handle icon-xinzeng1"></i>新增</el-button>
     </el-col>
     <el-col :span="24">
-      <el-table
-        :data="tableData"
-        border
-        style="width: 100%"
-        @selection-change="handleSelectionChange">
-        <el-table-column
-          type="selection"
-          width="55">
-        </el-table-column>
-        <el-table-column
-          prop="title"
-          label="名称"
-          min-width="120">
-        </el-table-column>
-        <el-table-column
-          prop="clikcCount"
-          label="点击数"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="categoryId"
-          label="点击数"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="tagIds"
-          label="标签"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="createTime"
-          label="创建时间"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          label="操作"
-          width="200">
-          <template slot-scope="scope">
-            <el-button type="text" size="small" @click="commonEdit(scope)">编辑</el-button>
-            <el-button type="text" size="small" @click="commonDelt(scope)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-col>
-    <el-col :span="24">
-      <pagination :total="total" :currentPage="1" :currentChange="getTable" :setIndex="setIndex"></pagination>
-    </el-col>
-    <el-col :span="24">
-      <el-dialog
-      title="标签信息"
-      :visible.sync="dialogTag"
-      :before-close="dialogClose"
-      >
-        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
-         <el-input type="hidden" v-model="ruleForm.id"></el-input>
-          <el-form-item label="名称" prop="name">
-            <el-input type="text" v-model="ruleForm.name" auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="备注">
-            <el-input type="text" v-model="ruleForm.remark" auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
-            <el-button @click="dialogTag = false">取消</el-button>
-          </el-form-item>
-        </el-form>
-      </el-dialog>
+      <tables :searchTag="searchTag" :tableConfig="tableConfig" :apiAddress="'articleList'" :searchKeyword="searchKeyword"></tables>
     </el-col>
   </el-row>
 </template>
 <script>
 import breadCrumb from '../BreadCrumb'
-import pagination from '../../common/Pagination'
 import * as api from '../../../api'
 import * as handle from '../../common/handle'
 export default {
   components: {
     breadCrumb,
-    pagination
+    tables: () => import('../../common/table/Table')
   },
   data () {
     return {
-      tableData: [],
-      total: 0,
-      keyword: '',
-      multipleSelection: [],
-      dialogTag: false, // 新增修改用户弹窗
-      setIndex: new Date(), // 设置首页标签
+      searchKeyword: {
+        keyword: '',
+        page: 0,
+        limit: 10
+      },
+      searchTag: false,
+      tableConfig: [
+        {prop: 'title', label: '名称'},
+        {prop: 'categoryId', label: '分类'},
+        {prop: 'tag', label: '标签'},
+        {prop: 'desc', label: '描述'},
+        {prop: 'clickCount', label: '点击数'},
+        {prop: 'createTime', label: '创建时间'},
+        {
+          cellType: 'slots',
+          label: '操作',
+          minWidth: 120,
+          renderCell: (scope) => {
+            return (
+              <div>
+                <el-button type="text" on-click={() => { this.commonEdit(scope) }}>编辑</el-button>
+                <el-button type="text" on-click={() => { this.commonEdit(scope) }}>预览</el-button>
+                <el-button type="text" on-click={() => { this.commonEdit(scope) }}>删除</el-button>
+                <el-button type="text" on-click={() => { this.commonEdit(scope) }}>撤回</el-button>
+              </div>
+            )
+          }
+        }
+      ],
       ruleForm: {
         id: '',
         name: '',
@@ -119,36 +75,9 @@ export default {
     }
   },
   created () {
-    this.getTable()
   },
   methods: {
-    // 获取table数据
-    getTable (page, keyword) {
-      page = page || 1
-      keyword = keyword || ''
-      api.tagList({
-        page: page,
-        limit: 10,
-        keyword: keyword
-      })
-        .then(data => {
-          if (data.code === 1) {
-            this.tableData = data.data
-            this.total = data.total
-          }
-        })
-    },
-    // 全选标签
-    handleSelectionChange (val) {
-      this.multipleSelection = val
-      console.log(this.multipleSelection)
-    },
-    // 关闭弹窗
-    dialogClose (done) {
-      this.ruleForm = handle.formClean(this.ruleForm)
-      done()
-    },
-    // 删除用户
+    // 删除文章
     commonDelt (obj) {
       this.$confirm('确定删除标签：' + obj.row.name, '提示', {
         confirmButtonText: '确定',
@@ -221,15 +150,13 @@ export default {
     },
     // 编辑界面
     commonEdit (obj) {
-      var _this = this
-      api.tagShow({id: obj.row.id})
+      api.articleShow({id: obj.row.id})
         .then(data => {
           if (data.code === 1) {
             // 循环表单对象
-            for (let x in _this.ruleForm) {
-              _this.ruleForm[x] = data.data[x]
+            for (let x in this.ruleForm) {
+              this.ruleForm[x] = data.data[x]
             }
-            _this.dialogTag = true
           } else {
             this.$message('网络繁忙')
           }
@@ -248,8 +175,6 @@ export default {
                   type: 'success',
                   duration: 1000,
                   onClose: () => {
-                    // 关闭弹窗
-                    _this.dialogTag = false
                     // 清空数据
                     _this.ruleForm = handle.formClean(_this.ruleForm)
                     // 重新获取数据
@@ -268,8 +193,6 @@ export default {
                   type: 'success',
                   duration: 1000,
                   onClose: () => {
-                    // 关闭弹窗
-                    _this.dialogTag = false
                     // 清空数据
                     _this.ruleForm = handle.formClean(_this.ruleForm)
                     // 重新获取数据

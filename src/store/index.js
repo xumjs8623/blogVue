@@ -5,6 +5,8 @@ import Vuex from 'vuex'
 import addNum from './modules/addNum.js'
 import user from './modules/user.js'
 import tabs from './modules/tabs.js'
+import tablePage from './modules/tablePage.js'
+import interfaceConfig from './modules/interfaceConfig.js'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -18,6 +20,8 @@ export default new Vuex.Store({
   modules: {
     addNum,
     user,
-    tabs
+    tabs,
+    tablePage,
+    interfaceConfig
   }
 })

@@ -9,7 +9,7 @@
     <div id="admin-content">
       <el-row>
         <el-col :span="24">
-          <tabs></tabs>
+          <!-- <tabs></tabs> -->
         </el-col>
         <el-col :span="24">
           <router-view></router-view>

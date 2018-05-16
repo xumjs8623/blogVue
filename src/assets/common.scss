@@ -1,0 +1,6 @@
+$title-font-size: 20px;
+$title-font-weight: 400;
+.title{
+  font-size: #{$title-font-size};
+  font-weight: #{$title-font-weight};
+}
