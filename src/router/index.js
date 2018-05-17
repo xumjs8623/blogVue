@@ -16,7 +16,13 @@ export default new Router({
     {
       // 首页
       path: '/',
-      component: Home
+      component: Home,
+      children: [
+        {
+          path: '',
+          component: resolve => { require(['@/components/home/article/Article'], resolve) }
+        }
+      ]
     },
     {
       // 登录页

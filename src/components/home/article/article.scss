@@ -1,0 +1,49 @@
+.article {
+  opacity: 0;
+  animation: articleSlideIn 200ms 1600ms forwards;
+  .article-item {
+    margin-top: 60px;
+    .article-title{
+      span{
+        font-size: 26px;
+        border-bottom: solid 2px #fff;
+        cursor: pointer;
+        &:hover{
+          animation: artivleTitle 200ms forwards;
+        }
+      }
+    }
+    .article-meta{
+      margin-top: 5px;
+      margin-bottom: 20px;
+      color: #999;
+      font-size: 12px;
+      .iconfont {
+        margin-right: 3px;
+        font-size: 12px;
+      }
+    }
+    .article-button {
+      text-align: left;
+      margin-top: 20px;
+      span{
+        cursor: pointer;
+        .iconfont {
+          font-size: 10px;
+          color: #000;
+          margin-left: 5px;
+        }
+      }
+    }
+  }
+}
+@keyframes articleSlideIn
+  {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+  }
+@keyframes artivleTitle
+  {
+    0% {}
+    100% {border-bottom: solid 2px #000}
+  }
