@@ -51,6 +51,7 @@ export default {
         category: [],
         tag: []
       },
+      articleId: this.$route.params.id,
       categorySelect: [],
       ruleForm: {
         id: '',
@@ -78,24 +79,41 @@ export default {
   created () {
     this.categoryList()
     this.tagList()
+    this.getArticleInfo()
   },
   methods: {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          api.articleInsert(this.ruleForm)
-            .then(data => {
-              if (data.code) {
-                this.$message({
-                  message: data.msg,
-                  type: 'success',
-                  duration: 1500,
-                  onClose: () => {
-                    this.$router.push({path: '/admin/article'})
-                  }
-                })
-              }
-            })
+          if (String(this.ruleForm.id) === '0') {
+            api.articleInsert(this.ruleForm)
+              .then(data => {
+                if (data.code) {
+                  this.$message({
+                    message: data.msg,
+                    type: 'success',
+                    duration: 1500,
+                    onClose: () => {
+                      this.$router.push({path: '/admin/article'})
+                    }
+                  })
+                }
+              })
+          } else {
+            api.articleUpdate(this.ruleForm)
+              .then(data => {
+                if (data.code) {
+                  this.$message({
+                    message: data.msg,
+                    type: 'success',
+                    duration: 1500,
+                    onClose: () => {
+                      this.$router.push({path: '/admin/article'})
+                    }
+                  })
+                }
+              })
+          }
         }
       })
     },
@@ -126,6 +144,33 @@ export default {
             this.dicData.tag = data.data
           }
         })
+    },
+    // 获取文章详情
+    getArticleInfo () {
+      if (String(this.$route.params.id) !== '0') {
+        api.articleShow({id: this.$route.params.id})
+          .then((data) => {
+            console.log(data)
+            for (let x in this.ruleForm) {
+              if (data.data.hasOwnProperty(x) && x !== 'tags') {
+                this.ruleForm[x] = data.data[x]
+              }
+            }
+            // 单独设置标签
+            this.ruleForm.tags = []
+            if (data.data.hasOwnProperty('tagIds')) {
+              let tagIds = data.data.tagIds.split(',')
+              for (let x in tagIds) {
+                this.ruleForm.tags.push(Number(tagIds[x]))
+              }
+            }
+            // 单独设置分类
+            this.categorySelect = []
+            if (data.data.hasOwnProperty('categoryArr') && data.data.categoryArr.length !== 0) {
+              this.categorySelect = data.data.categoryArr
+            }
+          })
+      }
     }
   }
 }

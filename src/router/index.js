@@ -53,7 +53,7 @@ export default new Router({
           component: Article
         },
         {
-          path: 'articleContent',
+          path: 'articleContent/:id',
           component: ArticleContent
         },
         {

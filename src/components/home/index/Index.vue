@@ -78,14 +78,19 @@ export default {
   },
   data () {
     return {
-      homeStyle: {},
-      menusStyle: {}
+      homeStyle: {'paddingRight': '0px'},
+      menusStyle: {'width': '0px'}
     }
   },
   methods: {
     showUserInfo () {
-      this.homeStyle = {'paddingRight': '320px'}
-      this.menusStyle = {'width': '320px'}
+      if (this.homeStyle.paddingRight === '0px') {
+        this.homeStyle = {'paddingRight': '320px'}
+        this.menusStyle = {'width': '320px'}
+      } else {
+        this.homeStyle = {'paddingRight': '0px'}
+        this.menusStyle = {'width': '0px'}
+      }
     }
   }
 }

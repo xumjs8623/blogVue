@@ -21,7 +21,19 @@
 </template>
 
 <script>
+import * as api from '@/api'
 export default {
+  created () {
+    this.articleList()
+  },
+  methods: {
+    articleList () {
+      api.homeArticleList()
+        .then((data) => {
+          console.log(data)
+        })
+    }
+  }
 }
 </script>
 

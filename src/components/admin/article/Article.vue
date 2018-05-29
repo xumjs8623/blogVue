@@ -15,7 +15,7 @@
     </el-col>
     <el-col :span="24" class="nav-handle">
       <el-button type="danger" @click="allDelete"><i class="iconfont iconfont-handle icon-shanchu"></i>批量删除</el-button>
-      <el-button type="success" @click="$router.push('/admin/articleContent')"><i class="iconfont iconfont-handle icon-xinzeng1"></i>新增</el-button>
+      <el-button type="success" @click="$router.push('/admin/articleContent/0')"><i class="iconfont iconfont-handle icon-xinzeng1"></i>新增</el-button>
     </el-col>
     <el-col :span="24">
       <tables :searchTag="searchTag" :tableConfig="tableConfig" :apiAddress="'articleList'" :searchKeyword="searchKeyword"></tables>
@@ -42,7 +42,7 @@ export default {
       tableConfig: [
         {prop: 'title', label: '名称'},
         {prop: 'categoryId', label: '分类'},
-        {prop: 'tag', label: '标签'},
+        {prop: 'tagNames', label: '标签'},
         {prop: 'desc', label: '描述'},
         {prop: 'clickCount', label: '点击数'},
         {prop: 'createTime', label: '创建时间'},
@@ -55,7 +55,7 @@ export default {
               <div>
                 <el-button type="text" on-click={() => { this.commonEdit(scope) }}>编辑</el-button>
                 <el-button type="text" on-click={() => { this.commonEdit(scope) }}>预览</el-button>
-                <el-button type="text" on-click={() => { this.commonEdit(scope) }}>删除</el-button>
+                <el-button type="text" on-click={() => { this.commonDelete(scope) }}>删除</el-button>
                 <el-button type="text" on-click={() => { this.commonEdit(scope) }}>撤回</el-button>
               </div>
             )
@@ -150,16 +150,26 @@ export default {
     },
     // 编辑界面
     commonEdit (obj) {
-      api.articleShow({id: obj.row.id})
-        .then(data => {
-          if (data.code === 1) {
-            // 循环表单对象
-            for (let x in this.ruleForm) {
-              this.ruleForm[x] = data.data[x]
-            }
-          } else {
-            this.$message('网络繁忙')
-          }
+      console.log(obj.row.id)
+      this.$router.push({ path: `/admin/articleContent/${obj.row.id}` })
+    },
+    // 删除
+    commonDelete (obj) {
+      this.$confirm(`确认删除文章${obj.row.title}?`, '提示')
+        .then(() => {
+          api.articleDelt({id: obj.row.id})
+            .then(data => {
+              if (data.code) {
+                this.$message({
+                  type: 'success',
+                  message: data.msg,
+                  duration: 1500,
+                  onClose: () => {
+                    this.searchTag = !this.searchTag
+                  }
+                })
+              }
+            })
         })
     },
     // 新增修改

@@ -20,10 +20,20 @@ axios.interceptors.response.use(function (res) {
   // 对响应错误做点什么
   return Promise.reject(error)
 })
-/* -------------------------用户管理模块----------------------------- */
+/* -------------------------前台----------------------------- */
+// 文章列表
+export const homeArticleList = params => { return axios.get('/home/article', {params: params}).then(res => res.data).catch((error) => { console.log(error) }) }
+// 文章详情
+export const homeArticleInfo = params => { return axios.get('/home/article/' + params.id).then(res => res.data).catch((error) => { console.log(error) }) }
+// 分类列表
+export const homeCategoryList = params => { return axios.get('/home/category', {params: params}).then(res => res.data).catch((error) => { console.log(error) }) }
+// 标签列表
+export const homeTagList = params => { return axios.get('/home/tag', {params: params}).then(res => res.data).catch((error) => { console.log(error) }) }
+/* -------------------------后台----------------------------- */
+// 系统
 export const login = params => { return axios.post('/login', params).then(res => res.data).catch((error) => { console.log(error) }) }
 export const logout = params => { return axios.get('/logout', { params: params }).then(res => res.data).catch((error) => { console.log(error) }) }
-/* -------------------------用户管理模块----------------------------- */
+// 用户管理
 export const userList = params => { return axios.get('/admin/user', { params: params }).then(res => res.data).catch((error) => { console.log(error) }) }
 export const userShow = params => { return axios.get('/admin/user/' + params.id).then(res => res.data).catch((error) => { console.log(error) }) }
 export const userInsert = params => { return axios.post('/admin/user', params).then(res => res.data).catch((error) => { console.log(error) }) }
