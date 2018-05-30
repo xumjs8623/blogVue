@@ -3,6 +3,7 @@ import router from '../router'
 import url from '../../config/url'
 import {Message} from 'element-ui'
 // 自动将响应头中的token 放到请求头中去请求
+console.log('url:' + url)
 axios.defaults.baseURL = url
 axios.defaults.withCredentials = true
 // axios 响应拦截器
