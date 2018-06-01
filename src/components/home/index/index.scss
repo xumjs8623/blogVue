@@ -67,6 +67,7 @@ $index-content-width: 700;
     }
     .header-menus {
       float: right;
+      list-style: none;
       margin-top: -60px;
       animation: menusSlideIn  200ms 600ms linear forwards;
     }

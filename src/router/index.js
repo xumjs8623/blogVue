@@ -21,6 +21,10 @@ export default new Router({
         {
           path: '',
           component: resolve => { require(['@/components/home/article/Article'], resolve) }
+        },
+        {
+          path: 'article/:id',
+          component: resolve => { require(['@/components/home/articleContent/ArticleContent'], resolve) }
         }
       ]
     },

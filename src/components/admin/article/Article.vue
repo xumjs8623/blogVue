@@ -20,12 +20,19 @@
     <el-col :span="24">
       <tables :searchTag="searchTag" :tableConfig="tableConfig" :apiAddress="'articleList'" :searchKeyword="searchKeyword"></tables>
     </el-col>
+    <el-dialog
+      :visible.sync="showTag">
+      <div class="" v-html="markdown">
+      </div>
+    </el-dialog>
   </el-row>
 </template>
 <script>
 import breadCrumb from '../BreadCrumb'
 import * as api from '../../../api'
 import * as handle from '../../common/handle'
+import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
 export default {
   components: {
     breadCrumb,
@@ -39,6 +46,8 @@ export default {
         limit: 10
       },
       searchTag: false,
+      showTag: false,
+      markdown: '',
       tableConfig: [
         {prop: 'title', label: '名称'},
         {prop: 'categoryId', label: '分类'},
@@ -54,7 +63,7 @@ export default {
             return (
               <div>
                 <el-button type="text" on-click={() => { this.commonEdit(scope) }}>编辑</el-button>
-                <el-button type="text" on-click={() => { this.commonEdit(scope) }}>预览</el-button>
+                <el-button type="text" on-click={() => { this.commonShow(scope) }}>预览</el-button>
                 <el-button type="text" on-click={() => { this.commonDelete(scope) }}>删除</el-button>
                 <el-button type="text" on-click={() => { this.commonEdit(scope) }}>撤回</el-button>
               </div>
@@ -116,6 +125,26 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    renderMark (value) {
+      let md = new MarkdownIt({
+        highlight: function (str, lang) {
+          if (lang && hljs.getLanguage(lang)) {
+            try {
+              return hljs.highlight(lang, str).value
+            } catch (__) {}
+          }
+          return '' // use external default escaping
+        }
+      })
+      let result = md.render(value)
+      return result
+    },
+    // 预览
+    commonShow (obj) {
+      this.markdown = this.renderMark(obj.row.content)
+      console.log(this.markdown)
+      this.showTag = true
     },
     // 删除公共函数
     deleteCom (ids, obj) {

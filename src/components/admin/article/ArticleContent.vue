@@ -159,7 +159,7 @@ export default {
             // 单独设置标签
             this.ruleForm.tags = []
             if (data.data.hasOwnProperty('tagIds')) {
-              let tagIds = data.data.tagIds.split(',')
+              let tagIds = data.data.tagIds ? data.data.tagIds.split(',') : []
               for (let x in tagIds) {
                 this.ruleForm.tags.push(Number(tagIds[x]))
               }
